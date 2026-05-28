@@ -1,8 +1,8 @@
-"""Cross-platform clipboard image extraction.
+"""跨平台剪贴板图片提取 / Cross-platform clipboard image extraction.
 
-Windows: uses PIL.ImageGrab (native).
-macOS:   uses PIL.ImageGrab, falls back to `pngpaste`.
-Linux:   uses `wl-paste` (Wayland) or `xclip` (X11).
+Windows: PIL.ImageGrab（原生支持）.
+macOS:   PIL.ImageGrab, 回退到 `pngpaste`.
+Linux:   `wl-paste` (Wayland) 或 `xclip` (X11).
 """
 
 from __future__ import annotations
@@ -15,18 +15,20 @@ from pathlib import Path
 
 
 class ClipboardError(RuntimeError):
-    """Raised when no image can be read from the clipboard."""
+    """剪贴板中无图片时抛出 / Raised when no image can be read from the clipboard."""
 
 
 def _temp_path() -> Path:
-    d = Path(tempfile.gettempdir()) / "clipboard_vision_mcp"
+    d = Path(tempfile.gettempdir()) / "deepseek_eyes"
     d.mkdir(parents=True, exist_ok=True)
     return d / f"clip_{uuid.uuid4().hex}.png"
 
 
 def save_clipboard_image() -> str:
-    """Save the current clipboard image to a temp PNG and return its path.
+    """将剪贴板中的图片保存为临时 PNG 并返回路径。
+    如果剪贴板中没有图片则抛出 ClipboardError。
 
+    Save the current clipboard image to a temp PNG and return its path.
     Raises ClipboardError if the clipboard does not contain an image.
     """
     out = _temp_path()
@@ -43,26 +45,26 @@ def save_clipboard_image() -> str:
         _grab_linux(out)
 
     if not out.exists() or out.stat().st_size == 0:
-        raise ClipboardError("Clipboard does not contain an image.")
+        raise ClipboardError("剪贴板中没有图片 / Clipboard does not contain an image.")
     return str(out)
 
 
 def _grab_with_pil(out: Path) -> None:
     try:
-        from PIL import ImageGrab, Image  # type: ignore
+        from PIL import ImageGrab, Image
     except ImportError as e:
         raise ClipboardError(
-            "Pillow is required for clipboard image support. Run: pip install Pillow"
+            "需要安装 Pillow: pip install Pillow"
         ) from e
 
     img = ImageGrab.grabclipboard()
     if img is None:
-        raise ClipboardError("No image found in clipboard.")
+        raise ClipboardError("剪贴板中没有图片 / No image found in clipboard.")
 
-    # On Windows, if the user copied a file from Explorer, PIL returns a list of paths.
+    # Windows: 如果用户从资源管理器复制了文件，PIL 返回文件路径列表
     if isinstance(img, list):
         if not img:
-            raise ClipboardError("No image found in clipboard.")
+            raise ClipboardError("剪贴板中没有图片 / No image found in clipboard.")
         src = img[0]
         Image.open(src).save(out, "PNG")
         return
@@ -75,12 +77,12 @@ def _grab_macos_pngpaste(out: Path) -> None:
         result = subprocess.run(
             ["pngpaste", str(out)], capture_output=True, timeout=10
         )
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         raise ClipboardError(
-            "No image in clipboard. Install `pngpaste` for better support: brew install pngpaste"
-        ) from e
+            "剪贴板中无图片。安装 pngpaste: brew install pngpaste"
+        )
     if result.returncode != 0:
-        raise ClipboardError("No image in clipboard (pngpaste failed).")
+        raise ClipboardError("剪贴板中无图片(pngpaste 失败) / No image in clipboard.")
 
 
 def _grab_linux(out: Path) -> None:
@@ -93,13 +95,13 @@ def _grab_linux(out: Path) -> None:
         try:
             result = subprocess.run(cmd, capture_output=True, timeout=10)
         except FileNotFoundError:
-            errors.append(f"{pkg} not installed")
+            errors.append(f"未安装 {pkg}")
             continue
         if result.returncode == 0 and result.stdout:
             out.write_bytes(result.stdout)
             return
-        errors.append(f"{pkg} returned no image")
+        errors.append(f"{pkg} 返回空图片")
     raise ClipboardError(
-        "No image in clipboard. Install one of: wl-clipboard (Wayland) or xclip (X11). "
-        f"Attempts: {', '.join(errors)}"
+        "剪贴板中无图片。请安装 wl-clipboard(Wayland) 或 xclip(X11)。"
+        f"尝试结果: {', '.join(errors)}"
     )

@@ -3,14 +3,14 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "clipboard-vision-mcp"
-version = "0.1.0"
-description = "MCP server that lets any text LLM see images directly from your system clipboard (Groq + Llama-4 Scout)."
+name = "deepseek-eyes"
+version = "1.0.0"
+description = "给 DeepSeek 装上眼睛 — MCP Server + 通义千问VL, 剪贴板图片 → 视觉模型 → 文字描述 / Give DeepSeek the ability to see images via clipboard + Qwen-VL"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
-authors = [{ name = "Capetlevrai" }]
-keywords = ["mcp", "vision", "clipboard", "groq", "llama", "llm", "opencode", "deepseek"]
+authors = [{ name = "Shaohan He" }, { name = "Capetlevrai (original)" }]
+keywords = ["mcp", "vision", "clipboard", "deepseek", "qwen-vl", "modelscope", "llm", "claude-code"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "License :: OSI Approved :: MIT License",
@@ -22,19 +22,19 @@ classifiers = [
 ]
 dependencies = [
   "mcp>=1.0.0",
-  "groq>=0.11.0",
+  "openai>=1.0.0",
   "aiofiles>=23.0.0",
   "Pillow>=10.0.0",
 ]
 
 [project.urls]
-Homepage = "https://github.com/Capetlevrai/clipboard-vision-mcp"
-Repository = "https://github.com/Capetlevrai/clipboard-vision-mcp"
-Issues = "https://github.com/Capetlevrai/clipboard-vision-mcp/issues"
+Homepage = "https://github.com/290298661-pixel/deepseek-eyes"
+Repository = "https://github.com/290298661-pixel/deepseek-eyes"
+Issues = "https://github.com/290298661-pixel/deepseek-eyes/issues"
 
 [project.scripts]
-clipboard-vision-mcp = "clipboard_vision_mcp.server:run"
+deepseek-eyes = "deepseek_eyes.server:run"
 
 [tool.setuptools.packages.find]
-include = ["clipboard_vision_mcp*"]
+include = ["deepseek_eyes*"]
 exclude = ["examples*", "docs*", "tests*"]

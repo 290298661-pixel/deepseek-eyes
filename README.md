@@ -1,236 +1,182 @@
-# clipboard-vision-mcp
+# deepseek-eyes 👁️
 
-> 🇫🇷 **[Version française disponible → README.fr.md](README.fr.md)**
+<p align="center">
+  <b>给 DeepSeek 装上眼睛。</b><br>
+  截图 → 剪贴板 → MCP → 通义千问VL → 文字描述 → DeepSeek 也能"看见"
+</p>
 
-> Add vision to text-only models in Opencode (**DeepSeek V4**, **GLM 5.1**) — **see the image in your clipboard directly**, no manual file saving.
+<p align="center">
+  <b><i>Give DeepSeek the ability to see.</i></b><br>
+  <i>Screenshot → clipboard → Qwen-VL → text → your text-only model can "see"</i>
+</p>
 
-**Tested on Windows 11 + Opencode + DeepSeek V4 Pro.** Multi-OS clipboard support (Windows / macOS / Linux X11 / Linux Wayland).
-
-Forked from [itcomgroup/vision-mcp-server](https://github.com/itcomgroup/vision-mcp-server) — rewritten around clipboard-first tools, security hardening, cross-platform clipboard extraction, and one-prompt AI install.
-
----
-
-## The problem
-
-Cheap/fast text-only models like **DeepSeek V4** and **GLM 5.1** are great for code, but they cannot read images. Every time you paste a screenshot, the model asks you to save it to disk and provide a path.
-
-## The fix
-
-This MCP server exposes `*_from_clipboard` tools. When the LLM needs to see your screenshot, it calls `analyze_clipboard` — the server reads the clipboard image, sends it to a real vision model (**Groq + Llama-4 Scout, free tier**), and returns a text description the text model can reason about.
-
-Result: **paste → ask → done.** No file shuffling.
+<p align="center">
+  <a href="#-快速开始">快速开始</a> ·
+  <a href="#-为什么需要">为什么需要</a> ·
+  <a href="#-工作原理">工作原理</a> ·
+  <a href="#-客户端配置">客户端配置</a> ·
+  <a href="README_EN.md">English</a>
+</p>
 
 ---
 
-## 🤖 One-prompt install via AI (recommended)
+## 🇨🇳 中文
 
-Instead of running the steps below manually, paste one of these prompts into any coding assistant (DeepSeek, GLM, Claude, GPT, ...) and it will set everything up for you end-to-end — clone, venv, deps, MCP config, keybindings:
-
-- 🇬🇧 **[docs/INSTALL_PROMPT_EN.md](docs/INSTALL_PROMPT_EN.md)**
-- 🇫🇷 **[docs/INSTALL_PROMPT_FR.md](docs/INSTALL_PROMPT_FR.md)**
-
-Prefer doing it yourself? Keep reading.
-
----
-
-## Features
-
-- 🖼️ **Clipboard-first** — `analyze_clipboard`, `extract_text_from_clipboard`, `diagnose_error_from_clipboard`, `describe_ui_from_clipboard`, `code_from_clipboard`.
-- 📁 **File path fallback** — same tools available for images already on disk.
-- 🆓 **Free vision backend** — Groq's free tier with Llama-4 Scout (17B, multimodal).
-- 🖥️ **Multi-OS** — Windows, macOS, Linux (X11 + Wayland).
-- 🔒 **Security hardened** — extension/size/magic-byte validation, auto-delete of clipboard temp files after analysis.
-- 🔌 **MCP standard** — works with Opencode, Claude Code, Cursor, Cline, Continue, or any MCP-capable client.
-
----
-
-## Requirements
-
-- **Python 3.10+**
-- **Groq API key** (free, 30 seconds sign-up): https://console.groq.com/keys
-- An MCP-capable client (Opencode, Claude Code, Cursor, Cline, Continue, ...)
-
-### Python dependencies (installed automatically via `pip install -e .`)
-
-| Package | Purpose |
-|---|---|
-| `mcp>=1.0.0` | MCP protocol server |
-| `groq>=0.11.0` | Groq API client (Llama-4 Scout vision) |
-| `aiofiles>=23.0.0` | Async file I/O |
-| `Pillow>=10.0.0` | Clipboard image extraction (Windows/macOS), PNG encoding |
-
-### OS-specific clipboard dependencies
-
-| OS | Command | Why |
-|---|---|---|
-| **Windows** | *nothing extra* | Pillow + pywin32 handle the clipboard natively. |
-| **macOS** | `brew install pngpaste` *(optional fallback)* | Pillow works in most cases; pngpaste as backup. |
-| **Linux — Wayland** | `sudo apt install wl-clipboard` | Provides `wl-paste`. |
-| **Linux — X11** | `sudo apt install xclip` | Or your distro equivalent. |
-
----
-
-## Quick start
-
-### 1. Get a free Groq API key
-https://console.groq.com/keys
-
-### 2. Install
+### ⚡ 快速开始
 
 ```bash
-git clone https://github.com/Capetlevrai/clipboard-vision-mcp.git
-cd clipboard-vision-mcp
+# 1. 克隆
+git clone https://github.com/290298661-pixel/deepseek-eyes.git
+cd deepseek-eyes
+
+# 2. 安装
 python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# macOS/Linux:
-source .venv/bin/activate
+.venv\Scripts\activate    # Windows
+# source .venv/bin/activate  # macOS/Linux
 pip install -e .
-```
 
-### 3. Smoke test (no Groq needed)
+# 3. 获取免费 API Key
+# 访问 https://modelscope.cn → 登录 → 个人中心 → 访问令牌 → 创建令牌
 
-Copy any screenshot, then:
-
-```bash
+# 4. 测试剪贴板（复制一张图片后运行）
 python examples/smoke_test.py
+# 预期: ✅ 成功: 剪贴板图片已保存到 ...\clip_xxx.png
+
+# 5. 配置 MCP 客户端（见下方）
 ```
 
-Expected: `OK: clipboard image saved to <path>`.
+### 🎯 为什么需要？
 
-### 4. Wire to your MCP client
+DeepSeek V4 / GLM 等文本模型的 API **没有视觉能力** ——你粘贴一张截图，它只能告诉你"我看见了文件路径"。
 
-See [docs/OPENCODE.md](docs/OPENCODE.md) for Opencode (Windows-tested) or [docs/CLIENTS.md](docs/CLIENTS.md) for Claude Code / Cursor / Cline / Continue.
+**deepseek-eyes** 填补了这个缺口：
 
-**Opencode** (`%APPDATA%\opencode\opencode.json` on Windows, `~/.config/opencode/opencode.json` on Linux/macOS):
+```
+你截了一张图
+        │
+        ▼
+  ┌─────────────────┐
+  │ deepseek-eyes    │
+  │ 读取剪贴板图片    │
+  │ → 发给通义千问VL  │
+  │ → 返回文字描述   │
+  └────────┬────────┘
+           ▼
+  DeepSeek: "这是一个登录页面，有用户名和密码两个输入框..."
+```
+
+**和同类工具的对比：**
+
+| | deepseek-eyes | 原版 clipboard-vision-mcp | ErlichLiu/deepseek-vision |
+|---|---|---|---|
+| 视觉后端 | 通义千问VL | Groq（需翻墙） | 自选 |
+| 免费额度 | 500次/天 | Groq 免费层 | 取决于后端 |
+| 语言 | 🇨🇳 中文优先 | 英文 | 🇨🇳 中文 |
+| 方式 | MCP stdio | MCP stdio | HTTP 代理 |
+
+### 🔧 工作原理
+
+```
+┌──────────────────┐   MCP    ┌──────────────────┐   HTTPS   ┌───────────────────┐
+│  Claude Code /    │ ──────▶ │  deepseek-eyes   │ ────────▶│  ModelScope API    │
+│  Opencode         │         │  (Python)        │          │  Qwen3-VL-8B       │
+│  (DeepSeek API)   │         │                  │          │  (国内直连, 免费)   │
+└──────────────────┘         └──────────────────┘          └───────────────────┘
+                                    │
+                                    ▼
+                          读取系统剪贴板 (PIL)
+                          → base64 → 发送 → 返回中文描述 → 删除临时文件
+```
+
+### 📋 MCP 工具列表
+
+| 工具 | 功能 |
+|------|------|
+| `analyze_clipboard` | 分析剪贴板中的图片 |
+| `extract_text_from_clipboard` | 剪贴板图片 OCR 提取文字 |
+| `describe_ui_from_clipboard` | 分析剪贴板 UI 截图 |
+| `diagnose_error_from_clipboard` | 诊断剪贴板错误截图 |
+| `code_from_clipboard` | 从剪贴板代码截图提取代码 |
+| `analyze_image` | 分析磁盘图片文件 |
+| `extract_text` | 磁盘图片 OCR |
+| `describe_ui` | 分析磁盘 UI 截图 |
+| `diagnose_error` | 诊断磁盘错误截图 |
+| `understand_diagram` | 解读流程图/架构图 |
+| `analyze_chart` | 分析数据图表 |
+| `code_from_screenshot` | 磁盘代码截图提取代码 |
+
+### 🔌 客户端配置
+
+**Claude Code**（`.claude/settings.json`）：
 
 ```json
 {
-  "mcp": {
-    "clipboard-vision": {
-      "type": "local",
-      "command": [
-        "C:\\path\\to\\clipboard-vision-mcp\\.venv\\Scripts\\python.exe",
-        "-m",
-        "clipboard_vision_mcp"
-      ],
-      "enabled": true,
-      "environment": {
-        "GROQ_API_KEY": "gsk_your_key_here"
+  "mcpServers": {
+    "deepseek-eyes": {
+      "command": "D:\\GitHub\\deepseek-eyes\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "deepseek_eyes"],
+      "env": {
+        "MODELSCOPE_API_KEY": "你的_API_Key"
       }
     }
   }
 }
 ```
 
-> 💡 **Use the absolute path to the venv's Python.** This guarantees the MCP starts with the right dependencies regardless of shell, cwd, or active venv.
+> ⚠️ `command` 必须使用 venv 中 Python 的**绝对路径**。
 
-### 5. ⚠️ Opencode keybindings for pasting images
-
-Opencode does **not** bind image-paste to `Ctrl+V` / `Alt+V` by default. Without this step, copying a screenshot and hitting paste will insert nothing (or plain text).
-
-Edit your Opencode `keybinds.json` or the `keybinds` section of `opencode.json`:
+**Opencode**（`%APPDATA%\opencode\opencode.json`）：
 
 ```json
 {
-  "keybinds": {
-    "input_paste": "ctrl+v",
-    "input_paste_image": "alt+v"
+  "mcp": {
+    "deepseek-eyes": {
+      "type": "local",
+      "command": ["D:\\GitHub\\deepseek-eyes\\.venv\\Scripts\\python.exe", "-m", "deepseek_eyes"],
+      "enabled": true,
+      "environment": {
+        "MODELSCOPE_API_KEY": "你的_API_Key"
+      }
+    }
   }
 }
 ```
 
-Restart Opencode after editing.
+### 🤖 AI 一键安装
 
-### 6. Does it auto-start after a Windows reboot?
+把 [安装提示词](docs/INSTALL_PROMPT_CN.md) 粘贴给 Claude Code / DeepSeek，让它帮你自动完成安装。
 
-**Yes.** Opencode re-reads `opencode.json` at every launch and auto-spawns any MCP server with `"type": "local"` and `"enabled": true`. Because the command uses the **absolute path to the venv's Python**, it doesn't matter which shell or working directory Opencode is launched from.
+### ❓ 常见问题
 
-Reboot → open Opencode → `clipboard-vision` tools are listed. No manual step.
+见 [故障排查指南](docs/TROUBLESHOOTING.md)
 
----
+### 🛡️ 安全
 
-## Usage
+- 本地 stdio 进程运行，不开放任何网络端口
+- 临时剪贴板文件分析完成后**自动删除**
+- 仅接受图片格式（`.png .jpg .jpeg .gif .webp .bmp`），防止 LLM 注入后读取任意文件
+- 文件大小限制 20MB，魔数校验
+- 图片经 base64 编码发送至 ModelScope API，参阅其[隐私政策](https://modelscope.cn/privacy)
 
-```
-You: (copy a screenshot to clipboard, then type)
-     "Look at what I just copied and tell me what's wrong with this error."
+### 🗺️ 路线图
 
-LLM (DeepSeek, GLM, Claude, ...): [calls diagnose_error_from_clipboard]
-     → "The error says `ECONNREFUSED 127.0.0.1:5432`. Postgres isn't
-        running on port 5432. Start it with: ..."
-```
-
-The text-only model never sees pixels — it reads the description returned by Llama-4 Scout and reasons over it.
-
-### Tool reference
-
-| Tool | Input | Use when |
-|---|---|---|
-| `analyze_clipboard` | optional `prompt` | Generic description, Q&A on the clipboard image. |
-| `extract_text_from_clipboard` | — | Pure OCR. |
-| `describe_ui_from_clipboard` | — | UI/UX review, component inventory. |
-| `diagnose_error_from_clipboard` | — | Error screenshot → cause + fix. |
-| `code_from_clipboard` | — | Extract code from a screenshot. |
-| `analyze_image` | `image_path`, optional `prompt` | Image already on disk. |
-| `extract_text`, `describe_ui`, `diagnose_error`, `understand_diagram`, `analyze_chart`, `code_from_screenshot` | `image_path` | Same as above for files. |
+- [ ] 支持 DashScope（阿里云官方）作为备用后端
+- [ ] 多 API Key 轮询
+- [ ] 视频关键帧提取 + 分析
 
 ---
 
-## Security
+## 🇬🇧 English
 
-This server runs as a **local stdio process** — it does not open any network port and only talks to the MCP client over stdin/stdout and to the Groq API over HTTPS.
-
-Hardening in place:
-
-- **File type allow-list.** `analyze_image` and the other file-path tools only accept `.png .jpg .jpeg .gif .webp .bmp`. This prevents a prompt-injected LLM from asking the server to read arbitrary local files (`~/.ssh/id_rsa`, `.env`, ...) and exfiltrate them as base64 to Groq.
-- **Magic-byte check.** File content is validated against known image headers before upload.
-- **Size cap.** 20 MB max per image.
-- **Auto-delete clipboard temp files** after each analysis. Screenshots may contain secrets (tokens, chats, credentials) — the server writes them to `$TMPDIR/clipboard_vision_mcp/` and unlinks them on completion.
-- **No telemetry.** No analytics, no phone-home.
-
-### What this project cannot protect you from
-
-- **Your API key lives in your MCP client config in plain text.** That is how MCP clients work today. Keep that config file non-world-readable and never commit it. If you accidentally expose a key (chat, screenshot, git push), **rotate it** at https://console.groq.com/keys.
-- **Groq receives the images you analyze.** Check their [privacy policy](https://groq.com/privacy-policy/) before sending anything sensitive.
-- **Any MCP tool is executed at the direction of the LLM.** If you connect a prompt-injected model to this server and feed it untrusted input, the model can choose what to analyze. The allow-list above reduces blast radius but cannot eliminate it.
-
-### Found an issue?
-
-Please open a [private security advisory](https://github.com/Capetlevrai/clipboard-vision-mcp/security/advisories/new) rather than a public issue.
+See [README_EN.md](README_EN.md) for the full English version.
 
 ---
 
-## How it works
+## 🙏 致谢
 
-```
-┌──────────────┐   MCP   ┌─────────────────┐   HTTPS   ┌─────────────────┐
-│  Opencode    │ ──────▶ │  clipboard-     │ ────────▶ │  Groq API       │
-│  (DeepSeek)  │         │  vision-mcp     │           │  Llama-4 Scout  │
-└──────────────┘         └─────────────────┘           └─────────────────┘
-                              │
-                              ▼
-                     reads system clipboard
-                     (PIL / wl-paste / xclip)
-                     → validate → base64 → send → delete
-```
+- 基于 [Capetlevrai/clipboard-vision-mcp](https://github.com/Capetlevrai/clipboard-vision-mcp) (MIT)
+- 视觉模型：通义千问VL / Qwen-VL via [ModelScope](https://modelscope.cn)
 
----
+## 📄 License
 
-## Troubleshooting
-
-- **"Clipboard does not contain an image."** — Copy an actual image, not a file icon or text. On Linux, verify `wl-paste --type image/png` or `xclip -selection clipboard -t image/png -o | file -` works outside the MCP.
-- **"GROQ_API_KEY is not set."** — Check the `environment` block in your client config, then **fully restart** the client.
-- **Tools don't appear in Opencode.** — Check Opencode's MCP logs. Run `python -m clipboard_vision_mcp` manually — it should start and wait silently on stdin.
-- **"Refusing to read '<ext>' — only image files are allowed."** — You (or the LLM) passed a non-image path. This is the security guard doing its job.
-
----
-
-## Credits
-
-- Forked from [itcomgroup/vision-mcp-server](https://github.com/itcomgroup/vision-mcp-server) — original Groq + Llama-4 Scout MCP integration.
-- Vision model: [Llama-4 Scout 17B](https://groq.com/) served by Groq.
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+MIT © Shaohan He
