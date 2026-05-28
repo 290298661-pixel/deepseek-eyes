@@ -35,8 +35,13 @@ python -m venv .venv
 # source .venv/bin/activate  # macOS/Linux
 pip install -e .
 
-# 3. 获取免费 API Key
-# 访问 https://modelscope.cn → 登录 → 个人中心 → 访问令牌 → 创建令牌
+# 3. 获取免费 API Key（每天2000次，单模型500次）
+# ① 打开 https://modelscope.cn 注册/登录
+# ② 点右上角头像 → 个人中心 → 访问令牌
+#    或直接访问: https://modelscope.cn/my/myaccesstoken
+# ③ 首次使用会提示绑定阿里云账号（必须，按页面引导完成）
+# ④ 点击"新建访问令牌" → 命名 → 生成 → 复制
+# ⑤ 令牌格式为 ms-xxxxxxxxxxxx，使用时去掉 ms- 前缀！
 
 # 4. 测试剪贴板（复制一张图片后运行）
 python examples/smoke_test.py

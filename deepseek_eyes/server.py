@@ -233,12 +233,15 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
             TextContent(
                 type="text",
                 text="❌ 未设置 MODELSCOPE_API_KEY 环境变量。\n\n"
-                "获取免费 API Key（每天500次）：\n"
-                "1. 访问 https://modelscope.cn\n"
-                "2. 登录 → 个人中心 → 访问令牌 → 创建令牌\n"
-                "3. 将 API Key 设置到 MCP 配置的 env 中\n\n"
-                "MODELSCOPE_API_KEY is not set. "
-                "Get a free key at https://modelscope.cn (500 calls/day).",
+                "获取免费 API Key（每天2000次，单模型500次）：\n"
+                "1. 打开 https://modelscope.cn/my/myaccesstoken\n"
+                "2. 登录 → 首次使用需绑定阿里云账号\n"
+                "3. 点击「新建访问令牌」→ 命名 → 生成 → 复制\n"
+                "4. ⚠️ 令牌格式为 ms-xxxxxxxx，使用时去掉 ms- 前缀！\n"
+                "5. 将去掉前缀后的 Key 设置到 MCP 配置的 env 中\n\n"
+                "MODELSCOPE_API_KEY not set. "
+                "Get a free key at https://modelscope.cn/my/myaccesstoken "
+                "(2000 calls/day, remove ms- prefix).",
             )
         ]
 

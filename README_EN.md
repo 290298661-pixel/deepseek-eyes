@@ -15,11 +15,14 @@ python -m venv .venv
 source .venv/bin/activate  # macOS/Linux
 # .venv\Scripts\activate   # Windows
 pip install -e .
-```
 
-Get a free API key at https://modelscope.cn (500 calls/day, no credit card).
-
-Test: copy an image to clipboard, run `python examples/smoke_test.py`.
+# Get a free API key (2000 calls/day, 500 per model):
+# ① https://modelscope.cn → Register/Login
+# ② Avatar → Profile → Access Token
+#    or directly: https://modelscope.cn/my/myaccesstoken
+# ③ First time: bind your Alibaba Cloud account (required)
+# ④ "Create Access Token" → name it → generate → copy
+# ⑤ Token format: ms-xxxxxxxxxxxx → remove the ms- prefix!
 
 ## Why?
 
