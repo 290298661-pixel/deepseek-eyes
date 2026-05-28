@@ -1,57 +1,60 @@
-# MCP client configuration
-
-All clients below speak MCP stdio. The command is always:
-
-```
-python -m clipboard_vision_mcp
-```
-
-with `GROQ_API_KEY` in the environment.
+# MCP 客户端配置 / MCP Client Configuration
 
 ## Claude Code
 
-Edit `~/.claude/settings.json` (or `%USERPROFILE%\.claude\settings.json`):
+在 `.claude/settings.json` 中添加：
 
 ```json
 {
   "mcpServers": {
-    "clipboard-vision": {
-      "command": "python",
-      "args": ["-m", "clipboard_vision_mcp"],
-      "env": { "GROQ_API_KEY": "gsk_..." }
+    "deepseek-eyes": {
+      "command": "D:\\GitHub\\deepseek-eyes\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "deepseek_eyes"],
+      "env": {
+        "MODELSCOPE_API_KEY": "your_key_here"
+      }
     }
   }
 }
 ```
 
-Or CLI:
-
-```bash
-claude mcp add clipboard-vision -- python -m clipboard_vision_mcp
-```
+> ⚠️ `command` 必须使用 venv 中 Python 的**绝对路径**。
 
 ## Cursor
 
-Settings → Features → MCP → Add new:
-
 ```json
 {
-  "clipboard-vision": {
-    "command": "python",
-    "args": ["-m", "clipboard_vision_mcp"],
-    "env": { "GROQ_API_KEY": "gsk_..." }
+  "mcpServers": {
+    "deepseek-eyes": {
+      "command": "python",
+      "args": ["-m", "deepseek_eyes"],
+      "env": {
+        "MODELSCOPE_API_KEY": "your_key_here"
+      }
+    }
   }
 }
 ```
 
 ## Cline / Continue
 
-Both clients use the same `mcpServers` shape — drop it into their MCP config file.
-
-## Generic stdio
-
-If your client accepts raw commands, pass:
-
+```json
+{
+  "mcpServers": {
+    "deepseek-eyes": {
+      "command": "python",
+      "args": ["-m", "deepseek_eyes"],
+      "env": {
+        "MODELSCOPE_API_KEY": "your_key_here"
+      }
+    }
+  }
+}
 ```
-env GROQ_API_KEY=gsk_... python -m clipboard_vision_mcp
+
+## 手动验证
+
+```bash
+python -m deepseek_eyes
+# 应该静默等待输入，Ctrl+C 退出
 ```

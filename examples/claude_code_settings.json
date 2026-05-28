@@ -1,10 +1,10 @@
 {
   "mcpServers": {
-    "clipboard-vision": {
-      "command": "python",
-      "args": ["-m", "clipboard_vision_mcp"],
+    "deepseek-eyes": {
+      "command": "D:\\GitHub\\deepseek-eyes\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "deepseek_eyes"],
       "env": {
-        "GROQ_API_KEY": "gsk_your_key_here"
+        "MODELSCOPE_API_KEY": "your_key_here"
       }
     }
   }
