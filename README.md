@@ -1,7 +1,7 @@
 # deepseek-eyes 👁️
 
 <p align="center">
-  <b>给 DeepSeek 装上眼睛。</b><br>
+  <b>给 DeepSeek 装上眼睛（无需外网！）。</b><br>
   截图 → 剪贴板 → MCP → 通义千问VL → 文字描述 → DeepSeek 也能"看见"
 </p>
 
