@@ -19,9 +19,19 @@ class ClipboardError(RuntimeError):
 
 
 def _temp_path() -> Path:
-    d = Path(tempfile.gettempdir()) / "deepseek_eyes"
-    d.mkdir(parents=True, exist_ok=True)
-    return d / f"clip_{uuid.uuid4().hex}.png"
+    # 优先项目本地目录，避免中文用户名路径编码问题
+    # Prefer project-local tmp to avoid Unicode path issues on Windows
+    candidates = [
+        Path(__file__).resolve().parent.parent / "tmp",
+        Path(tempfile.gettempdir()) / "deepseek_eyes",
+    ]
+    for d in candidates:
+        try:
+            d.mkdir(parents=True, exist_ok=True)
+            return d / f"clip_{uuid.uuid4().hex}.png"
+        except (OSError, UnicodeError):
+            continue
+    raise RuntimeError("无法创建临时目录 / Cannot create temp directory")
 
 
 def save_clipboard_image() -> str:
